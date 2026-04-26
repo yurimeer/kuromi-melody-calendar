@@ -41,7 +41,7 @@
       position: fixed;
       inset: 0;
       z-index: 0;
-      background: url('bg.png') 40% 70% / cover no-repeat;
+      background: url('bg2.png') 40% 70% / cover no-repeat;
     }
     .bg::after {
       content: '';
@@ -641,23 +641,26 @@
       .catch(() => {});
   }
 
+  function fetchWeatherByIP() {
+    fetch('https://ipwho.is/')
+      .then(r => r.json())
+      .then(d => { if (d.latitude) fetchWeather(d.latitude, d.longitude); })
+      .catch(() => {
+        fetch('https://ipapi.co/json/')
+          .then(r => r.json())
+          .then(d => { if (d.latitude) fetchWeather(d.latitude, d.longitude); })
+          .catch(() => {});
+      });
+  }
+
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-      () => {
-        // GPS拒否 → IPで位置取得
-        fetch('https://ipapi.co/json/')
-          .then(r => r.json())
-          .then(d => fetchWeather(d.latitude, d.longitude))
-          .catch(() => {});
-      },
-      { timeout: 8000 }
+      () => fetchWeatherByIP(),
+      { timeout: 10000, maximumAge: 300000 }
     );
   } else {
-    fetch('https://ipapi.co/json/')
-      .then(r => r.json())
-      .then(d => fetchWeather(d.latitude, d.longitude))
-      .catch(() => {});
+    fetchWeatherByIP();
   }
 </script>
 </body>
