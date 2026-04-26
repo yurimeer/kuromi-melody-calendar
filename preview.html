@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ぷっくりデザインプレビュー</title>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      background: #f8e8f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 60px;
+      gap: 40px;
+    }
+    h2 {
+      color: #b06080;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      margin: 0 0 12px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .section { display: flex; flex-direction: column; align-items: center; }
+
+    /* ── BG panel ── */
+    .bg-panel {
+      width: 320px;
+      min-height: 200px;
+      border-radius: 32px;
+      background: #fce8f0;
+      box-shadow:
+        inset 0 6px 16px rgba(255,255,255,0.7),
+        inset 0 -6px 16px rgba(180,100,130,0.2),
+        0 12px 40px rgba(180,100,130,0.25);
+      padding: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* ── Calendar mock ── */
+    .cal-mock {
+      width: 320px;
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 16px 50px rgba(160,80,120,0.28);
+    }
+    .cal-header {
+      background: linear-gradient(160deg, #fce8f0 0%, #f0d8ee 100%);
+      box-shadow: inset 0 4px 12px rgba(255,255,255,0.8), inset 0 -4px 12px rgba(180,100,130,0.15);
+      padding: 18px 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .month-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+    .month-text {
+      font-size: 20px;
+      font-weight: 800;
+      color: #c06080;
+      text-shadow: 0 2px 0 rgba(255,255,255,0.8), 0 4px 8px rgba(180,80,110,0.2);
+      letter-spacing: 0.04em;
+    }
+    .nav-btn {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(160deg, #fff 0%, #fcd0e0 100%);
+      box-shadow: 0 4px 10px rgba(200,100,140,0.3), inset 0 1px 3px rgba(255,255,255,0.9);
+      color: #c06080;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background: linear-gradient(180deg, #fce0ec 0%, #f8d0e4 100%);
+    }
+    .wd {
+      text-align: center;
+      padding: 9px 0;
+      font-size: 11px;
+      font-weight: 800;
+      color: #b06880;
+    }
+    .wd:first-child { color: #e05070; }
+    .wd:last-child  { color: #9060c0; }
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+      padding: 6px;
+      background: #fff5fa;
+    }
+    .day {
+      aspect-ratio: 1;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 700;
+      color: #9a5870;
+    }
+    .day:nth-child(7n+1) { color: #e05070; }
+    .day:nth-child(7n)   { color: #9060c0; }
+    .day.today {
+      background: radial-gradient(circle at 40% 35%, #ffb8d0, #e06090);
+      color: #fff !important;
+      box-shadow: 0 4px 12px rgba(220,80,130,0.45), inset 0 1px 4px rgba(255,255,255,0.5);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- CHARACTERS -->
+<div class="section">
+  <h2>キャラクター — ぷっくり3Dスタイル</h2>
+  <div class="bg-panel">
+
+    <!-- decorative flowers -->
+    <svg width="36" height="36" viewBox="0 0 60 60" style="position:absolute;top:12px;left:12px;opacity:0.85">
+      <defs>
+        <radialGradient id="flPink" cx="38%" cy="30%" r="65%">
+          <stop offset="0%" stop-color="#fff0f5"/>
+          <stop offset="40%" stop-color="#ffb0cc"/>
+          <stop offset="100%" stop-color="#e0607a"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="30" cy="10" rx="10" ry="10" fill="url(#flPink)" filter="url(#ps)"/>
+      <ellipse cx="30" cy="50" rx="10" ry="10" fill="url(#flPink)" filter="url(#ps)"/>
+      <ellipse cx="10" cy="30" rx="10" ry="10" fill="url(#flPink)" filter="url(#ps)"/>
+      <ellipse cx="50" cy="30" rx="10" ry="10" fill="url(#flPink)" filter="url(#ps)"/>
+      <ellipse cx="16" cy="16" rx="9" ry="9" fill="url(#flPink)" filter="url(#ps)"/>
+      <ellipse cx="44" cy="16" rx="9" ry="9" fill="url(#flPink)" filter="url(#ps)"/>
+      <ellipse cx="16" cy="44" rx="9" ry="9" fill="url(#flPink)" filter="url(#ps)"/>
+      <ellipse cx="44" cy="44" rx="9" ry="9" fill="url(#flPink)" filter="url(#ps)"/>
+      <circle cx="30" cy="30" r="13" fill="url(#flPink)"/>
+      <circle cx="30" cy="30" r="8" fill="#ffeeaa"/>
+      <ellipse cx="26" cy="26" rx="4" ry="3" fill="rgba(255,255,255,0.6)" transform="rotate(-25 26 26)"/>
+    </svg>
+
+    <!-- BIG BEAR -->
+    <svg width="140" height="150" viewBox="0 0 140 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- bear body gradient - key: bright top highlight, rich mid, dark edges -->
+        <radialGradient id="bBody" cx="36%" cy="28%" r="68%" gradientUnits="objectBoundingBox">
+          <stop offset="0%"   stop-color="#fff3d0"/>
+          <stop offset="18%"  stop-color="#f5c878"/>
+          <stop offset="55%"  stop-color="#d4904a"/>
+          <stop offset="85%"  stop-color="#a85e28"/>
+          <stop offset="100%" stop-color="#8a4818"/>
+        </radialGradient>
+        <radialGradient id="bEar" cx="36%" cy="28%" r="68%" gradientUnits="objectBoundingBox">
+          <stop offset="0%"   stop-color="#fff3d0"/>
+          <stop offset="20%"  stop-color="#f0c060"/>
+          <stop offset="60%"  stop-color="#c88040"/>
+          <stop offset="100%" stop-color="#8a4818"/>
+        </radialGradient>
+        <radialGradient id="bMuzzle" cx="40%" cy="32%" r="62%" gradientUnits="objectBoundingBox">
+          <stop offset="0%"   stop-color="#fff8ee"/>
+          <stop offset="50%"  stop-color="#f8e8c8"/>
+          <stop offset="100%" stop-color="#e0c090"/>
+        </radialGradient>
+        <radialGradient id="bCheek" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#ffc0a0"/>
+          <stop offset="100%" stop-color="#e89060"/>
+        </radialGradient>
+        <filter id="bShadow" x="-25%" y="-20%" width="150%" height="160%">
+          <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="rgba(120,60,0,0.35)"/>
+        </filter>
+        <filter id="earShadow" x="-30%" y="-25%" width="160%" height="170%">
+          <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="rgba(120,60,0,0.3)"/>
+        </filter>
+      </defs>
+
+      <!-- 耳 (behind head) -->
+      <ellipse cx="36" cy="42" rx="22" ry="22" fill="url(#bEar)" filter="url(#earShadow)"/>
+      <ellipse cx="104" cy="42" rx="22" ry="22" fill="url(#bEar)" filter="url(#earShadow)"/>
+      <!-- 耳ハイライト -->
+      <ellipse cx="30" cy="34" rx="8" ry="6" fill="rgba(255,255,255,0.5)" transform="rotate(-20 30 34)"/>
+      <ellipse cx="98" cy="34" rx="8" ry="6" fill="rgba(255,255,255,0.5)" transform="rotate(20 98 34)"/>
+      <!-- 耳内側 -->
+      <ellipse cx="36" cy="44" rx="12" ry="12" fill="#c07848" opacity="0.5"/>
+      <ellipse cx="104" cy="44" rx="12" ry="12" fill="#c07848" opacity="0.5"/>
+
+      <!-- ボディ -->
+      <ellipse cx="70" cy="110" rx="50" ry="38" fill="url(#bBody)" filter="url(#bShadow)"/>
+      <!-- ボディハイライト -->
+      <ellipse cx="50" cy="90" rx="18" ry="12" fill="rgba(255,255,255,0.3)" transform="rotate(-18 50 90)"/>
+
+      <!-- 頭 -->
+      <ellipse cx="70" cy="70" rx="46" ry="44" fill="url(#bBody)" filter="url(#bShadow)"/>
+
+      <!-- 頭ハイライト（ぷっくりの核心！） -->
+      <ellipse cx="50" cy="48" rx="20" ry="15" fill="rgba(255,255,255,0.55)" transform="rotate(-18 50 48)"/>
+      <!-- 二次ハイライト -->
+      <ellipse cx="44" cy="44" rx="10" ry="6" fill="rgba(255,255,255,0.35)" transform="rotate(-18 44 44)"/>
+
+      <!-- マズル -->
+      <ellipse cx="70" cy="82" rx="25" ry="18" fill="url(#bMuzzle)"/>
+      <ellipse cx="62" cy="76" rx="10" ry="6" fill="rgba(255,255,255,0.45)" transform="rotate(-10 62 76)"/>
+
+      <!-- 頬 -->
+      <ellipse cx="44" cy="76" rx="13" ry="9" fill="url(#bCheek)" opacity="0.55"/>
+      <ellipse cx="96" cy="76" rx="13" ry="9" fill="url(#bCheek)" opacity="0.55"/>
+
+      <!-- 目 -->
+      <ellipse cx="54" cy="63" rx="7" ry="8" fill="#2a1008"/>
+      <ellipse cx="86" cy="63" rx="7" ry="8" fill="#2a1008"/>
+      <!-- 目ハイライト大 -->
+      <ellipse cx="57" cy="60" rx="3" ry="3.5" fill="rgba(255,255,255,0.9)"/>
+      <ellipse cx="89" cy="60" rx="3" ry="3.5" fill="rgba(255,255,255,0.9)"/>
+      <!-- 目ハイライト小 -->
+      <circle cx="52" cy="66" r="1.5" fill="rgba(255,255,255,0.6)"/>
+      <circle cx="84" cy="66" r="1.5" fill="rgba(255,255,255,0.6)"/>
+
+      <!-- 鼻 -->
+      <ellipse cx="70" cy="79" rx="5" ry="3.5" fill="#8a4020"/>
+      <ellipse cx="69" cy="78" rx="2.5" ry="1.5" fill="rgba(255,255,255,0.4)"/>
+
+      <!-- 口 -->
+      <path d="M62 85 Q70 93 78 85" stroke="#a05030" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+      <!-- 手 -->
+      <ellipse cx="26" cy="114" rx="16" ry="14" fill="url(#bBody)"/>
+      <ellipse cx="20" cy="108" rx="7" ry="5" fill="rgba(255,255,255,0.3)" transform="rotate(-20 20 108)"/>
+      <ellipse cx="114" cy="114" rx="16" ry="14" fill="url(#bBody)"/>
+      <ellipse cx="108" cy="108" rx="7" ry="5" fill="rgba(255,255,255,0.3)" transform="rotate(20 108 108)"/>
+    </svg>
+
+    <!-- BIG RABBIT -->
+    <svg width="130" height="160" viewBox="0 0 130 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="rBody" cx="36%" cy="28%" r="68%" gradientUnits="objectBoundingBox">
+          <stop offset="0%"   stop-color="#ffffff"/>
+          <stop offset="20%"  stop-color="#fdf0f8"/>
+          <stop offset="55%"  stop-color="#e8d4f0"/>
+          <stop offset="85%"  stop-color="#c0a0d8"/>
+          <stop offset="100%" stop-color="#9870b8"/>
+        </radialGradient>
+        <radialGradient id="rEar" cx="38%" cy="25%" r="65%" gradientUnits="objectBoundingBox">
+          <stop offset="0%"   stop-color="#ffffff"/>
+          <stop offset="20%"  stop-color="#fdf0f8"/>
+          <stop offset="60%"  stop-color="#dcc8ec"/>
+          <stop offset="100%" stop-color="#9870b8"/>
+        </radialGradient>
+        <radialGradient id="rEarIn" cx="50%" cy="40%" r="55%" gradientUnits="objectBoundingBox">
+          <stop offset="0%"   stop-color="#ffe0ee"/>
+          <stop offset="50%"  stop-color="#ffb8d8"/>
+          <stop offset="100%" stop-color="#f080b0"/>
+        </radialGradient>
+        <radialGradient id="rCheek" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#ffcce0"/>
+          <stop offset="100%" stop-color="#f090b8"/>
+        </radialGradient>
+        <filter id="rShadow" x="-25%" y="-15%" width="150%" height="160%">
+          <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="rgba(100,50,150,0.28)"/>
+        </filter>
+        <filter id="rEarShadow" x="-30%" y="-15%" width="160%" height="170%">
+          <feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="rgba(100,50,150,0.25)"/>
+        </filter>
+      </defs>
+
+      <!-- 耳 -->
+      <ellipse cx="38" cy="36" rx="16" ry="32" fill="url(#rEar)" filter="url(#rEarShadow)"/>
+      <ellipse cx="92" cy="36" rx="16" ry="32" fill="url(#rEar)" filter="url(#rEarShadow)"/>
+      <!-- 耳内側 ピンク -->
+      <ellipse cx="38" cy="38" rx="8" ry="22" fill="url(#rEarIn)"/>
+      <ellipse cx="92" cy="38" rx="8" ry="22" fill="url(#rEarIn)"/>
+      <!-- 耳ハイライト -->
+      <ellipse cx="33" cy="22" rx="5" ry="12" fill="rgba(255,255,255,0.6)" transform="rotate(-8 33 22)"/>
+      <ellipse cx="87" cy="22" rx="5" ry="12" fill="rgba(255,255,255,0.6)" transform="rotate(8 87 22)"/>
+
+      <!-- ボディ -->
+      <ellipse cx="65" cy="118" rx="46" ry="38" fill="url(#rBody)" filter="url(#rShadow)"/>
+      <ellipse cx="48" cy="100" rx="16" ry="11" fill="rgba(255,255,255,0.4)" transform="rotate(-18 48 100)"/>
+
+      <!-- 頭 -->
+      <ellipse cx="65" cy="78" rx="42" ry="40" fill="url(#rBody)" filter="url(#rShadow)"/>
+
+      <!-- 頭ハイライト（ぷっくり！） -->
+      <ellipse cx="46" cy="56" rx="19" ry="14" fill="rgba(255,255,255,0.65)" transform="rotate(-18 46 56)"/>
+      <ellipse cx="40" cy="52" rx="9" ry="6" fill="rgba(255,255,255,0.45)" transform="rotate(-18 40 52)"/>
+
+      <!-- 頬 -->
+      <ellipse cx="42" cy="84" rx="13" ry="9" fill="url(#rCheek)" opacity="0.6"/>
+      <ellipse cx="88" cy="84" rx="13" ry="9" fill="url(#rCheek)" opacity="0.6"/>
+
+      <!-- 目 -->
+      <ellipse cx="52" cy="72" rx="6.5" ry="7.5" fill="#22103a"/>
+      <ellipse cx="78" cy="72" rx="6.5" ry="7.5" fill="#22103a"/>
+      <ellipse cx="55" cy="69" rx="3" ry="3.5" fill="rgba(255,255,255,0.92)"/>
+      <ellipse cx="81" cy="69" rx="3" ry="3.5" fill="rgba(255,255,255,0.92)"/>
+      <circle cx="50" cy="75" r="1.5" fill="rgba(255,255,255,0.6)"/>
+      <circle cx="76" cy="75" r="1.5" fill="rgba(255,255,255,0.6)"/>
+
+      <!-- 鼻 -->
+      <ellipse cx="65" cy="83" rx="4" ry="3" fill="#f090b8"/>
+      <ellipse cx="64" cy="82" rx="2" ry="1.5" fill="rgba(255,255,255,0.5)"/>
+
+      <!-- 口 -->
+      <path d="M58 88 Q65 95 72 88" stroke="#f090b8" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+      <!-- しっぽ -->
+      <ellipse cx="104" cy="120" rx="14" ry="14" fill="url(#rBody)"/>
+      <ellipse cx="99" cy="115" rx="7" ry="6" fill="rgba(255,255,255,0.55)"/>
+
+      <!-- 手 -->
+      <ellipse cx="24" cy="118" rx="14" ry="12" fill="url(#rBody)"/>
+      <ellipse cx="19" cy="112" rx="6" ry="5" fill="rgba(255,255,255,0.4)" transform="rotate(-20 19 112)"/>
+      <ellipse cx="106" cy="118" rx="14" ry="12" fill="url(#rBody)"/>
+      <ellipse cx="100" cy="112" rx="6" ry="5" fill="rgba(255,255,255,0.4)" transform="rotate(20 100 112)"/>
+    </svg>
+
+    <!-- deco star -->
+    <svg width="28" height="28" viewBox="0 0 60 60" style="position:absolute;bottom:14px;right:16px;opacity:0.9">
+      <defs>
+        <radialGradient id="starG" cx="38%" cy="30%" r="65%">
+          <stop offset="0%" stop-color="#fffde0"/>
+          <stop offset="40%" stop-color="#ffe060"/>
+          <stop offset="100%" stop-color="#e0a020"/>
+        </radialGradient>
+      </defs>
+      <polygon points="30,4 36,22 55,22 40,34 46,52 30,40 14,52 20,34 5,22 24,22" fill="url(#starG)"/>
+      <ellipse cx="22" cy="16" rx="7" ry="5" fill="rgba(255,255,255,0.55)" transform="rotate(-30 22 16)"/>
+    </svg>
+
+    <!-- deco heart -->
+    <svg width="26" height="26" viewBox="0 0 60 60" style="position:absolute;top:14px;right:16px;opacity:0.9">
+      <defs>
+        <radialGradient id="heartG" cx="38%" cy="28%" r="65%">
+          <stop offset="0%" stop-color="#ffe0ee"/>
+          <stop offset="35%" stop-color="#ff80aa"/>
+          <stop offset="100%" stop-color="#d03068"/>
+        </radialGradient>
+      </defs>
+      <path d="M30 50 C10 36 0 24 0 16 C0 6 8 0 16 0 C22 0 28 4 30 8 C32 4 38 0 44 0 C52 0 60 6 60 16 C60 24 50 36 30 50Z" fill="url(#heartG)"/>
+      <ellipse cx="14" cy="12" rx="8" ry="6" fill="rgba(255,255,255,0.5)" transform="rotate(-30 14 12)"/>
+    </svg>
+
+    <!-- deco flower bottom-left -->
+    <svg width="32" height="32" viewBox="0 0 60 60" style="position:absolute;bottom:14px;left:12px;opacity:0.85">
+      <defs>
+        <radialGradient id="fl2" cx="38%" cy="30%" r="65%">
+          <stop offset="0%" stop-color="#e8f8ff"/>
+          <stop offset="40%" stop-color="#90d0f8"/>
+          <stop offset="100%" stop-color="#4090d8"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="30" cy="10" rx="10" ry="10" fill="url(#fl2)"/>
+      <ellipse cx="30" cy="50" rx="10" ry="10" fill="url(#fl2)"/>
+      <ellipse cx="10" cy="30" rx="10" ry="10" fill="url(#fl2)"/>
+      <ellipse cx="50" cy="30" rx="10" ry="10" fill="url(#fl2)"/>
+      <ellipse cx="16" cy="16" rx="9" ry="9" fill="url(#fl2)"/>
+      <ellipse cx="44" cy="16" rx="9" ry="9" fill="url(#fl2)"/>
+      <ellipse cx="16" cy="44" rx="9" ry="9" fill="url(#fl2)"/>
+      <ellipse cx="44" cy="44" rx="9" ry="9" fill="url(#fl2)"/>
+      <circle cx="30" cy="30" r="13" fill="url(#fl2)"/>
+      <circle cx="30" cy="30" r="8" fill="#fff8e0"/>
+      <ellipse cx="26" cy="26" rx="4" ry="3" fill="rgba(255,255,255,0.65)" transform="rotate(-25 26 26)"/>
+    </svg>
+
+  </div>
+</div>
+
+<!-- CALENDAR MOCK -->
+<div class="section">
+  <h2>カレンダーレイアウト（モック）</h2>
+  <div class="cal-mock">
+    <div class="cal-header">
+      <button class="nav-btn">‹</button>
+      <div class="month-info">
+        <!-- tiny chars in header -->
+        <div style="display:flex;gap:8px;margin-bottom:6px;align-items:flex-end">
+          <svg width="36" height="38" viewBox="0 0 140 150">
+            <defs>
+              <radialGradient id="mbh" cx="36%" cy="28%" r="68%" gradientUnits="objectBoundingBox">
+                <stop offset="0%"   stop-color="#fff3d0"/>
+                <stop offset="18%"  stop-color="#f5c878"/>
+                <stop offset="55%"  stop-color="#d4904a"/>
+                <stop offset="100%" stop-color="#8a4818"/>
+              </radialGradient>
+            </defs>
+            <ellipse cx="36" cy="42" rx="22" ry="22" fill="url(#mbh)"/>
+            <ellipse cx="104" cy="42" rx="22" ry="22" fill="url(#mbh)"/>
+            <ellipse cx="70" cy="110" rx="50" ry="38" fill="url(#mbh)"/>
+            <ellipse cx="70" cy="70" rx="46" ry="44" fill="url(#mbh)"/>
+            <ellipse cx="50" cy="48" rx="20" ry="15" fill="rgba(255,255,255,0.5)" transform="rotate(-18 50 48)"/>
+            <ellipse cx="70" cy="82" rx="25" ry="18" fill="#fff8ee"/>
+            <ellipse cx="54" cy="63" rx="7" ry="8" fill="#2a1008"/>
+            <ellipse cx="86" cy="63" rx="7" ry="8" fill="#2a1008"/>
+            <ellipse cx="57" cy="60" rx="3" ry="3.5" fill="rgba(255,255,255,0.9)"/>
+            <ellipse cx="89" cy="60" rx="3" ry="3.5" fill="rgba(255,255,255,0.9)"/>
+            <ellipse cx="70" cy="79" rx="5" ry="3.5" fill="#8a4020"/>
+          </svg>
+          <svg width="34" height="42" viewBox="0 0 130 160">
+            <defs>
+              <radialGradient id="mrh" cx="36%" cy="28%" r="68%" gradientUnits="objectBoundingBox">
+                <stop offset="0%"   stop-color="#ffffff"/>
+                <stop offset="20%"  stop-color="#fdf0f8"/>
+                <stop offset="55%"  stop-color="#e8d4f0"/>
+                <stop offset="100%" stop-color="#9870b8"/>
+              </radialGradient>
+              <radialGradient id="mrhi" cx="50%" cy="40%" r="55%" gradientUnits="objectBoundingBox">
+                <stop offset="0%" stop-color="#ffe0ee"/>
+                <stop offset="100%" stop-color="#f080b0"/>
+              </radialGradient>
+            </defs>
+            <ellipse cx="38" cy="36" rx="16" ry="32" fill="url(#mrh)"/>
+            <ellipse cx="92" cy="36" rx="16" ry="32" fill="url(#mrh)"/>
+            <ellipse cx="38" cy="38" rx="8" ry="22" fill="url(#mrhi)"/>
+            <ellipse cx="92" cy="38" rx="8" ry="22" fill="url(#mrhi)"/>
+            <ellipse cx="65" cy="118" rx="46" ry="38" fill="url(#mrh)"/>
+            <ellipse cx="65" cy="78" rx="42" ry="40" fill="url(#mrh)"/>
+            <ellipse cx="46" cy="56" rx="19" ry="14" fill="rgba(255,255,255,0.6)" transform="rotate(-18 46 56)"/>
+            <ellipse cx="52" cy="72" rx="6.5" ry="7.5" fill="#22103a"/>
+            <ellipse cx="78" cy="72" rx="6.5" ry="7.5" fill="#22103a"/>
+            <ellipse cx="55" cy="69" rx="3" ry="3.5" fill="rgba(255,255,255,0.92)"/>
+            <ellipse cx="81" cy="69" rx="3" ry="3.5" fill="rgba(255,255,255,0.92)"/>
+            <ellipse cx="65" cy="83" rx="4" ry="3" fill="#f090b8"/>
+          </svg>
+        </div>
+        <div class="month-text">2026年 4月</div>
+      </div>
+      <button class="nav-btn">›</button>
+    </div>
+    <div class="weekdays">
+      <div class="wd">日</div><div class="wd">月</div><div class="wd">火</div>
+      <div class="wd">水</div><div class="wd">木</div><div class="wd">金</div><div class="wd">土</div>
+    </div>
+    <div class="days" id="mockDays"></div>
+  </div>
+</div>
+
+<script>
+  const grid = document.getElementById('mockDays');
+  const firstDay = new Date(2026, 3, 1).getDay();
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'day';
+    grid.appendChild(el);
+  }
+  for (let d = 1; d <= 30; d++) {
+    const el = document.createElement('div');
+    el.className = 'day' + (d === 26 ? ' today' : '');
+    el.textContent = d;
+    grid.appendChild(el);
+  }
+</script>
+</body>
+</html>
