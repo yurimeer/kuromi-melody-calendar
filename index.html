@@ -41,7 +41,7 @@
       position: fixed;
       inset: 0;
       z-index: 0;
-      background: url('bg2.png') 40% 70% / cover no-repeat;
+      background: url('bg3.jpg') center center / cover no-repeat;
     }
     .bg::after {
       content: '';
@@ -115,21 +115,6 @@
       color: #3a2a58;
       letter-spacing: 0.02em;
       line-height: 1;
-    }
-    .weather {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1px;
-      padding-bottom: 4px;
-    }
-    .weather-icon { font-size: 22px; line-height: 1; }
-    .weather-temp {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 13px;
-      font-weight: 400;
-      color: #3a2a58;
-      letter-spacing: 0.06em;
     }
 
     /* ── カレンダーカード ── */
@@ -416,10 +401,6 @@
       <div class="month-row">
         <div class="month-spacer"></div>
         <div class="month-name" id="monthLabel"></div>
-        <div class="weather" id="weatherBlock" style="visibility:hidden">
-          <span class="weather-icon" id="weatherIcon"></span>
-          <span class="weather-temp" id="weatherTemp"></span>
-        </div>
       </div>
     </div>
     <button class="nav-btn" id="nextBtn">&#8250;</button>
@@ -614,35 +595,6 @@
     lastTap = now;
   }, { passive: false });
 
-  // ── 天気取得（GPS → IP fallback）──
-  const WMO = {
-    0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
-    45:'🌫️', 48:'🌫️',
-    51:'🌦️', 53:'🌦️', 55:'🌧️',
-    61:'🌧️', 63:'🌧️', 65:'🌧️',
-    71:'🌨️', 73:'🌨️', 75:'❄️',
-    80:'🌦️', 81:'🌧️', 82:'⛈️',
-    95:'⛈️', 96:'⛈️', 99:'⛈️'
-  };
-
-  function showWeather(icon, temp) {
-    document.getElementById('weatherIcon').textContent = icon;
-    document.getElementById('weatherTemp').textContent = Math.round(temp) + '°';
-    document.getElementById('weatherBlock').style.visibility = 'visible';
-  }
-
-  // wttr.in はIP自動判定なのでGPS権限不要
-  fetch('https://wttr.in/?format=%c+%t')
-    .then(r => r.text())
-    .then(text => {
-      const parts = text.trim().split(' ');
-      const icon = parts[0];
-      const temp = (parts[1] || '').replace('+', '');
-      document.getElementById('weatherIcon').textContent = icon;
-      document.getElementById('weatherTemp').textContent = temp;
-      document.getElementById('weatherBlock').style.visibility = 'visible';
-    })
-    .catch(() => {});
 </script>
 </body>
 </html>
