@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クロミ&マイメロ カレンダー</title>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --kuromi-dark: #2a1147;
+      --kuromi-purple: #7b3fa0;
+      --kuromi-light: #c084e8;
+      --melody-pink: #ff85b3;
+      --melody-light: #ffd6ea;
+      --melody-deep: #e8447a;
+      --bg: #fff0f7;
+      --white: #ffffff;
+      --text: #3a1a4a;
+      --today-bg: #ff85b3;
+      --today-text: #ffffff;
+      --sun: #e8447a;
+      --sat: #7b3fa0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      background: linear-gradient(160deg, #ffe0f0 0%, #ede0ff 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px 8px 40px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+    }
+
+    /* ── Characters ── */
+    .characters {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+      padding: 8px 16px 0;
+      gap: 8px;
+    }
+
+    .char-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .char-name {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+    .char-name.kuromi { color: var(--kuromi-purple); }
+    .char-name.melody { color: var(--melody-deep); }
+
+    svg.char { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15)); }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, var(--kuromi-dark) 0%, var(--kuromi-purple) 50%, var(--melody-deep) 100%);
+      border-radius: 24px 24px 0 0;
+      padding: 16px 20px 20px;
+      text-align: center;
+      margin-top: -2px;
+      box-shadow: 0 4px 16px rgba(100,0,150,0.25);
+    }
+
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .nav-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 20px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nav-btn:active { background: rgba(255,255,255,0.4); }
+
+    .month-title {
+      color: #fff;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      min-width: 160px;
+    }
+
+    /* ── Calendar ── */
+    .calendar-wrap {
+      background: var(--white);
+      border-radius: 0 0 24px 24px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(100,0,150,0.15);
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background: var(--melody-light);
+    }
+
+    .weekday {
+      text-align: center;
+      padding: 10px 0;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .weekday:first-child { color: var(--sun); }
+    .weekday:last-child  { color: var(--sat); }
+
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      padding: 4px;
+      background: #f5e8ff;
+    }
+
+    .day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+    }
+
+    .day:nth-child(7n+1) { color: var(--sun); }  /* 日 */
+    .day:nth-child(7n)   { color: var(--sat); }  /* 土 */
+
+    .day.empty { pointer-events: none; }
+
+    .day.today {
+      background: var(--melody-pink);
+      color: #fff !important;
+      box-shadow: 0 2px 8px rgba(255,133,179,0.5);
+    }
+    .day.today::after {
+      content: '★';
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      font-size: 9px;
+      line-height: 1;
+    }
+
+    .day:not(.empty):not(.today):active {
+      background: var(--melody-light);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 11px;
+      color: var(--kuromi-purple);
+      opacity: 0.7;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- キャラクター -->
+  <div class="characters">
+
+    <!-- クロミ -->
+    <div class="char-wrap">
+      <svg class="char" width="100" height="110" viewBox="0 0 100 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- 耳 -->
+        <ellipse cx="28" cy="28" rx="11" ry="26" fill="#1a0a2e"/>
+        <ellipse cx="72" cy="28" rx="11" ry="26" fill="#1a0a2e"/>
+        <ellipse cx="28" cy="28" rx="6" ry="19" fill="#7b3fa0"/>
+        <ellipse cx="72" cy="28" rx="6" ry="19" fill="#7b3fa0"/>
+        <!-- ボディ -->
+        <ellipse cx="50" cy="72" rx="36" ry="34" fill="#1a0a2e"/>
+        <!-- 顔 -->
+        <ellipse cx="50" cy="52" rx="32" ry="30" fill="#2a1147"/>
+        <!-- 頬 -->
+        <ellipse cx="34" cy="60" rx="7" ry="5" fill="#7b3fa0" opacity="0.5"/>
+        <ellipse cx="66" cy="60" rx="7" ry="5" fill="#7b3fa0" opacity="0.5"/>
+        <!-- 目 -->
+        <ellipse cx="40" cy="50" rx="7" ry="8" fill="white"/>
+        <ellipse cx="60" cy="50" rx="7" ry="8" fill="white"/>
+        <ellipse cx="41" cy="51" rx="4" ry="5" fill="#1a0a2e"/>
+        <ellipse cx="61" cy="51" rx="4" ry="5" fill="#1a0a2e"/>
+        <circle cx="43" cy="49" r="1.5" fill="white"/>
+        <circle cx="63" cy="49" r="1.5" fill="white"/>
+        <!-- 口 -->
+        <path d="M43 64 Q50 70 57 64" stroke="#7b3fa0" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- 鼻 -->
+        <ellipse cx="50" cy="61" rx="3" ry="2" fill="#7b3fa0"/>
+        <!-- リボン（骸骨マーク） -->
+        <g transform="translate(50,34)">
+          <!-- リボン本体 -->
+          <path d="M-16,-6 C-16,-12 -4,-12 0,-6 C4,-12 16,-12 16,-6 C16,0 4,0 0,6 C-4,0 -16,0 -16,-6Z" fill="#c084e8"/>
+          <!-- センター結び目 -->
+          <ellipse cx="0" cy="0" rx="4" ry="4" fill="#7b3fa0"/>
+          <!-- 骸骨 -->
+          <circle cx="0" cy="0" r="2.5" fill="white"/>
+          <rect x="-2.5" y="1.5" width="5" height="3" rx="0.5" fill="white"/>
+          <line x1="-1.2" y1="2" x2="-1.2" y2="4.5" stroke="#7b3fa0" stroke-width="0.8"/>
+          <line x1="1.2" y1="2" x2="1.2" y2="4.5" stroke="#7b3fa0" stroke-width="0.8"/>
+        </g>
+        <!-- 手 -->
+        <ellipse cx="18" cy="80" rx="10" ry="8" fill="#2a1147"/>
+        <ellipse cx="82" cy="80" rx="10" ry="8" fill="#2a1147"/>
+      </svg>
+      <span class="char-name kuromi">くろみ</span>
+    </div>
+
+    <!-- マイメロ -->
+    <div class="char-wrap">
+      <svg class="char" width="100" height="110" viewBox="0 0 100 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- フード -->
+        <ellipse cx="50" cy="42" rx="38" ry="40" fill="#ff85b3"/>
+        <!-- 耳 -->
+        <ellipse cx="22" cy="16" rx="10" ry="20" fill="#ff85b3"/>
+        <ellipse cx="78" cy="16" rx="10" ry="20" fill="#ff85b3"/>
+        <ellipse cx="22" cy="18" rx="5" ry="14" fill="#ffd6ea"/>
+        <ellipse cx="78" cy="18" rx="5" ry="14" fill="#ffd6ea"/>
+        <!-- ボディ -->
+        <ellipse cx="50" cy="82" rx="34" ry="26" fill="#fff0f7"/>
+        <!-- 顔部分（白） -->
+        <ellipse cx="50" cy="50" rx="26" ry="24" fill="white"/>
+        <!-- 頬 -->
+        <ellipse cx="35" cy="58" rx="7" ry="5" fill="#ffb3d1" opacity="0.7"/>
+        <ellipse cx="65" cy="58" rx="7" ry="5" fill="#ffb3d1" opacity="0.7"/>
+        <!-- 目 -->
+        <ellipse cx="43" cy="48" rx="4" ry="5" fill="#1a0a2e"/>
+        <ellipse cx="57" cy="48" rx="4" ry="5" fill="#1a0a2e"/>
+        <circle cx="44.5" cy="46.5" r="1.5" fill="white"/>
+        <circle cx="58.5" cy="46.5" r="1.5" fill="white"/>
+        <!-- 鼻 -->
+        <ellipse cx="50" cy="55" rx="2.5" ry="1.8" fill="#ff85b3"/>
+        <!-- 口 -->
+        <path d="M45 59 Q50 64 55 59" stroke="#ff85b3" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- フードのふち -->
+        <path d="M14 46 Q12 30 22 18" stroke="#e8447a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M86 46 Q88 30 78 18" stroke="#e8447a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- 花かざり -->
+        <g transform="translate(75,52)">
+          <circle cx="0" cy="-6" r="4" fill="#fff0f7"/>
+          <circle cx="5.2" cy="3" r="4" fill="#fff0f7"/>
+          <circle cx="-5.2" cy="3" r="4" fill="#fff0f7"/>
+          <circle cx="0" cy="0" r="4" fill="#ff85b3"/>
+          <circle cx="0" cy="0" r="2" fill="#ffd6ea"/>
+        </g>
+        <!-- 手 -->
+        <ellipse cx="18" cy="82" rx="10" ry="8" fill="#fff0f7"/>
+        <ellipse cx="82" cy="82" rx="10" ry="8" fill="#fff0f7"/>
+      </svg>
+      <span class="char-name melody">まいめろ</span>
+    </div>
+
+  </div><!-- /characters -->
+
+  <!-- ヘッダー（月ナビ） -->
+  <div class="header">
+    <div class="month-nav">
+      <button class="nav-btn" id="prevBtn">&#10094;</button>
+      <div class="month-title" id="monthTitle"></div>
+      <button class="nav-btn" id="nextBtn">&#10095;</button>
+    </div>
+  </div>
+
+  <!-- カレンダー本体 -->
+  <div class="calendar-wrap">
+    <div class="weekdays">
+      <div class="weekday">日</div>
+      <div class="weekday">月</div>
+      <div class="weekday">火</div>
+      <div class="weekday">水</div>
+      <div class="weekday">木</div>
+      <div class="weekday">金</div>
+      <div class="weekday">土</div>
+    </div>
+    <div class="days" id="daysGrid"></div>
+  </div>
+
+  <div class="footer">❤ kuromi &amp; my melody ❤</div>
+</div>
+
+<script>
+  const monthTitle = document.getElementById('monthTitle');
+  const daysGrid   = document.getElementById('daysGrid');
+  const prevBtn    = document.getElementById('prevBtn');
+  const nextBtn    = document.getElementById('nextBtn');
+
+  const today = new Date();
+  let current = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  function render() {
+    const y = current.getFullYear();
+    const m = current.getMonth();
+
+    monthTitle.textContent = `${y}年 ${m + 1}月`;
+
+    const firstDay = new Date(y, m, 1).getDay();
+    const lastDate = new Date(y, m + 1, 0).getDate();
+
+    daysGrid.innerHTML = '';
+
+    for (let i = 0; i < firstDay; i++) {
+      const el = document.createElement('div');
+      el.className = 'day empty';
+      daysGrid.appendChild(el);
+    }
+
+    for (let d = 1; d <= lastDate; d++) {
+      const el = document.createElement('div');
+      el.className = 'day';
+      el.textContent = d;
+      const isToday =
+        d === today.getDate() &&
+        m === today.getMonth() &&
+        y === today.getFullYear();
+      if (isToday) el.classList.add('today');
+      daysGrid.appendChild(el);
+    }
+  }
+
+  prevBtn.addEventListener('click', () => {
+    current.setMonth(current.getMonth() - 1);
+    render();
+  });
+  nextBtn.addEventListener('click', () => {
+    current.setMonth(current.getMonth() + 1);
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>
