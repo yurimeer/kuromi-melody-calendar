@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Calendar</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Noto+Serif+JP:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
@@ -41,7 +41,7 @@
       position: fixed;
       inset: 0;
       z-index: 0;
-      background: url('bg.png') 40% 20% / cover no-repeat;
+      background: url('bg.png') 40% 70% / cover no-repeat;
     }
     .bg::after {
       content: '';
@@ -255,26 +255,52 @@
       gap: 8px;
     }
     .event-item:last-child { border-bottom: none; }
+    .event-time {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px;
+      color: rgba(58,42,90,0.45);
+      letter-spacing: 0.06em;
+      flex-shrink: 0;
+      min-width: 36px;
+    }
     .event-text {
       font-size: 13px;
-      color: rgba(255,255,255,0.82);
+      color: rgba(58,42,90,0.75);
       flex: 1;
       line-height: 1.4;
-      font-weight: 300;
+      font-weight: 400;
     }
     .event-del {
       width: 26px; height: 26px;
       border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.45);
+      border: 1px solid rgba(58,42,90,0.15);
+      background: rgba(58,42,90,0.06);
+      color: rgba(58,42,90,0.4);
       font-size: 13px;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
       transition: background 0.15s;
     }
-    .event-del:active { background: rgba(255,255,255,0.2); }
+    .event-del:active { background: rgba(58,42,90,0.15); }
+    .sheet-time {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(180,160,230,0.3);
+      background: rgba(255,255,255,0.5);
+      font-family: 'Noto Serif JP', serif;
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text);
+      outline: none;
+      margin-bottom: 10px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .sheet-time:focus {
+      border-color: rgba(160,140,220,0.5);
+      background: rgba(255,255,255,0.65);
+    }
     .no-events {
       font-size: 12px;
       color: rgba(58,42,90,0.45);
@@ -420,6 +446,7 @@
 <div class="bottom-sheet" id="sheet">
   <div class="sheet-handle"></div>
   <div class="sheet-date-label" id="sheetDateLabel"></div>
+  <input class="sheet-time" id="sheetTime" type="time">
   <input class="sheet-input" id="sheetInput" type="text" placeholder="予定を入力..." maxlength="50">
   <button class="sheet-add-btn" id="sheetAddBtn">Add</button>
 </div>
@@ -427,8 +454,6 @@
 <script>
   const MONTH_NAMES = ['January','February','March','April','May','June',
                        'July','August','September','October','November','December'];
-  const MONTH_JA   = ['1月','2月','3月','4月','5月','6月',
-                       '7月','8月','9月','10月','11月','12月'];
 
   const today   = new Date();
   let   current = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -443,12 +468,15 @@
   function saveEvents(y, m, d, arr) {
     localStorage.setItem(storageKey(y,m,d), JSON.stringify(arr));
   }
+  // 旧データ（文字列）を新形式に変換
+  function normalizeEvent(ev) {
+    return typeof ev === 'string' ? { time: '', text: ev } : ev;
+  }
 
   // ── render calendar ──
   function render() {
     const y = current.getFullYear();
     const m = current.getMonth();
-
     document.getElementById('yearLabel').textContent = y;
     document.getElementById('monthLabel').textContent = m + 1;
 
@@ -463,25 +491,21 @@
       el.innerHTML = '<span class="day-num"></span><div class="dot-row"></div>';
       grid.appendChild(el);
     }
-
     for (let d = 1; d <= lastDate; d++) {
       const el = document.createElement('div');
       const isToday = d === today.getDate() && m === today.getMonth() && y === today.getFullYear();
       const isSelected = selectedDate && selectedDate.y === y && selectedDate.m === m && selectedDate.d === d;
       el.className = 'day' + (isToday ? ' today' : '') + (isSelected && !isToday ? ' selected' : '');
-
       const events = getEvents(y, m, d);
       const dots = events.slice(0,3).map(() => `<div class="dot"></div>`).join('');
-
       el.innerHTML = `<span class="day-num">${d}</span><div class="dot-row">${dots}</div>`;
       el.addEventListener('click', () => openSheet(y, m, d));
       grid.appendChild(el);
     }
-
     renderEventList();
   }
 
-  // ── event list (selected date) ──
+  // ── event list ──
   function renderEventList() {
     const y = current.getFullYear();
     const m = current.getMonth();
@@ -494,9 +518,11 @@
     }
 
     const { d } = selectedDate;
-    const events = getEvents(y, m, d);
-    const dateStr = `${y}年 ${m+1}月 ${d}日`;
-    document.getElementById('eventsTitle').textContent = dateStr;
+    const raw = getEvents(y, m, d);
+    const events = raw.map(normalizeEvent);
+    // 時刻順にソート
+    events.sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
+    document.getElementById('eventsTitle').textContent = `${y}年 ${m+1}月 ${d}日`;
 
     const list = document.getElementById('eventsList');
     if (events.length === 0) {
@@ -504,12 +530,14 @@
     } else {
       list.innerHTML = events.map((ev, i) => `
         <div class="event-item">
-          <span class="event-text">${escHtml(ev)}</span>
+          ${ev.time ? `<span class="event-time">${ev.time}</span>` : ''}
+          <span class="event-text">${escHtml(ev.text)}</span>
           <button class="event-del" data-idx="${i}">×</button>
         </div>`).join('');
       list.querySelectorAll('.event-del').forEach(btn => {
         btn.addEventListener('click', () => {
-          const arr = getEvents(y, m, d);
+          const arr = getEvents(y, m, d).map(normalizeEvent);
+          arr.sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
           arr.splice(+btn.dataset.idx, 1);
           saveEvents(y, m, d, arr);
           render();
@@ -525,12 +553,13 @@
   // ── bottom sheet ──
   function openSheet(y, m, d) {
     selectedDate = { y, m, d };
-    const label = `${MONTH_NAMES[m]} ${d}, ${y}`;
-    document.getElementById('sheetDateLabel').textContent = label;
+    document.getElementById('sheetDateLabel').textContent =
+      `${MONTH_NAMES[m]} ${d}, ${y}`;
     document.getElementById('sheetInput').value = '';
+    document.getElementById('sheetTime').value = '';
     document.getElementById('overlay').classList.add('open');
     document.getElementById('sheet').classList.add('open');
-    setTimeout(() => document.getElementById('sheetInput').focus(), 400);
+    setTimeout(() => document.getElementById('sheetTime').focus(), 400);
     render();
   }
 
@@ -543,14 +572,15 @@
   document.getElementById('overlay').addEventListener('click', closeSheet);
 
   document.getElementById('sheetAddBtn').addEventListener('click', () => {
-    const input = document.getElementById('sheetInput');
-    const val = input.value.trim();
-    if (!val || !selectedDate) return;
+    const text = document.getElementById('sheetInput').value.trim();
+    const time = document.getElementById('sheetTime').value;
+    if (!text || !selectedDate) return;
     const { y, m, d } = selectedDate;
     const arr = getEvents(y, m, d);
-    arr.push(val);
+    arr.push({ time, text });
     saveEvents(y, m, d, arr);
-    input.value = '';
+    document.getElementById('sheetInput').value = '';
+    document.getElementById('sheetTime').value = '';
     closeSheet();
     render();
   });
@@ -573,7 +603,7 @@
 
   render();
 
-  // ── 天気取得 ──
+  // ── 天気取得（GPS → IP fallback）──
   const WMO = {
     0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
     45:'🌫️', 48:'🌫️',
@@ -590,19 +620,33 @@
     document.getElementById('weatherBlock').style.visibility = 'visible';
   }
 
+  function fetchWeather(lat, lon) {
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`)
+      .then(r => r.json())
+      .then(data => {
+        const icon = WMO[data.current.weather_code] ?? '🌡️';
+        showWeather(icon, data.current.temperature_2m);
+      })
+      .catch(() => {});
+  }
+
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(pos => {
-      const { latitude: lat, longitude: lon } = pos.coords;
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`)
-        .then(r => r.json())
-        .then(d => {
-          const code = d.current.weather_code;
-          const temp = d.current.temperature_2m;
-          const icon = WMO[code] ?? '🌡️';
-          showWeather(icon, temp);
-        })
-        .catch(() => {});
-    }, () => {});
+    navigator.geolocation.getCurrentPosition(
+      pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+      () => {
+        // GPS拒否 → IPで位置取得
+        fetch('https://ipapi.co/json/')
+          .then(r => r.json())
+          .then(d => fetchWeather(d.latitude, d.longitude))
+          .catch(() => {});
+      },
+      { timeout: 8000 }
+    );
+  } else {
+    fetch('https://ipapi.co/json/')
+      .then(r => r.json())
+      .then(d => fetchWeather(d.latitude, d.longitude))
+      .catch(() => {});
   }
 </script>
 </body>
