@@ -10,7 +10,7 @@
       --lavender: #b8aee0;
       --lavender-dark: #8070b8;
       --lavender-deep: #4a3878;
-      --glass-bg: rgba(255,255,255,0.55);
+      --glass-bg: rgba(255,255,255,0.04);
       --glass-border: rgba(255,255,255,0.45);
       --text: #3a2a5a;
       --text-light: rgba(74,58,106,0.5);
@@ -631,37 +631,18 @@
     document.getElementById('weatherBlock').style.visibility = 'visible';
   }
 
-  function fetchWeather(lat, lon) {
-    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`)
-      .then(r => r.json())
-      .then(data => {
-        const icon = WMO[data.current.weather_code] ?? '🌡️';
-        showWeather(icon, data.current.temperature_2m);
-      })
-      .catch(() => {});
-  }
-
-  function fetchWeatherByIP() {
-    fetch('https://ipwho.is/')
-      .then(r => r.json())
-      .then(d => { if (d.latitude) fetchWeather(d.latitude, d.longitude); })
-      .catch(() => {
-        fetch('https://ipapi.co/json/')
-          .then(r => r.json())
-          .then(d => { if (d.latitude) fetchWeather(d.latitude, d.longitude); })
-          .catch(() => {});
-      });
-  }
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-      () => fetchWeatherByIP(),
-      { timeout: 10000, maximumAge: 300000 }
-    );
-  } else {
-    fetchWeatherByIP();
-  }
+  // wttr.in はIP自動判定なのでGPS権限不要
+  fetch('https://wttr.in/?format=%c+%t')
+    .then(r => r.text())
+    .then(text => {
+      const parts = text.trim().split(' ');
+      const icon = parts[0];
+      const temp = (parts[1] || '').replace('+', '');
+      document.getElementById('weatherIcon').textContent = icon;
+      document.getElementById('weatherTemp').textContent = temp;
+      document.getElementById('weatherBlock').style.visibility = 'visible';
+    })
+    .catch(() => {});
 </script>
 </body>
 </html>
